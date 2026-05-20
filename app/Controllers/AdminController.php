@@ -14,6 +14,36 @@ class AdminController extends BaseController
         $employeeModel = new EmployeeModel();
         $departmentModel = new DepartmentModel();
         $requestModel = new LeaveRequestModel();
+        $leaveRequests = $requestModel
+            ->select('date_debut, created_at')
+            ->orderBy('created_at', 'ASC')
+            ->findAll();
+
+        $monthLabels = [
+            'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+            'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
+        ];
+        $monthlyLeaveCounts = array_fill(0, 12, 0);
+
+        $weekdayLabels = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+        $weekdayLeaveCounts = array_fill(0, 7, 0);
+
+        foreach ($leaveRequests as $leaveRequest) {
+            $createdAt = (string) ($leaveRequest['created_at'] ?? '');
+            $referenceDate = (string) ($leaveRequest['date_debut'] ?? '') ?: $createdAt;
+
+            if ($referenceDate !== '') {
+                $monthIndex = (int) date('n', strtotime($referenceDate)) - 1;
+                if ($monthIndex >= 0 && $monthIndex < 12) {
+                    $monthlyLeaveCounts[$monthIndex]++;
+                }
+
+                $weekdayIndex = (int) date('N', strtotime($referenceDate)) - 1;
+                if ($weekdayIndex >= 0 && $weekdayIndex < 7) {
+                    $weekdayLeaveCounts[$weekdayIndex]++;
+                }
+            }
+        }
 
         return view('admin/dashboard', [
             'pageTitle' => 'Administration',
@@ -23,6 +53,14 @@ class AdminController extends BaseController
             'requestCount' => $requestModel->countAllResults(),
             'pendingCount' => (new LeaveRequestModel())->where('statut', 'en_attente')->countAllResults(),
             'approvedCount' => (new LeaveRequestModel())->where('statut', 'approuve')->countAllResults(),
+            'monthlyLeaveChart' => [
+                'labels' => $monthLabels,
+                'data' => $monthlyLeaveCounts,
+            ],
+            'weekdayLeaveChart' => [
+                'labels' => $weekdayLabels,
+                'data' => $weekdayLeaveCounts,
+            ],
         ]);
     }
 

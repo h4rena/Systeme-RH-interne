@@ -32,6 +32,7 @@ $sidebarItems = $menuItems[$role] ?? [];
     <title><?= esc($pageTitle) ?> | TechMada RH</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <?= $this->renderSection('head') ?>
     <style>
         :root{--ink:#13201a;--forest:#264d35;--forest2:#3c7a53;--leaf:#7fbe8d;--cream:#f4f1e8;--line:#d9e2db;--muted:#6b7c71;--card:#ffffff;--shadow:0 18px 40px rgba(19,32,26,.08)}
         *{box-sizing:border-box}
@@ -140,5 +141,6 @@ $sidebarItems = $menuItems[$role] ?? [];
         </div>
     </main>
 </div>
+<?= $this->renderSection('scripts') ?>
 </body>
 </html>

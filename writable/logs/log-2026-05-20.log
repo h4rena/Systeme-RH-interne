@@ -1,0 +1,11 @@
+CRITICAL - 2026-05-20 06:54:07 --> CodeIgniter\Exceptions\BadMethodCallException: Call to undefined method App\Models\LeaveRequestModel::selectRaw
+[Method: GET, Route: admin/dashboard]
+in SYSTEMPATH/Model.php on line 761.
+ 1 APPPATH/Controllers/AdminController.php(37): CodeIgniter\Model->__call()
+ 2 APPPATH/Controllers/AdminController.php(26): App\Controllers\AdminController->getLeaveByMonth()
+ 3 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\AdminController->dashboard()
+ 4 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()

@@ -28,13 +28,42 @@ class EmployeeController extends BaseController
             ->orderBy('types_conge.libelle', 'ASC')
             ->findAll();
 
-        $requests = (new LeaveRequestModel())
+        $allRequests = (new LeaveRequestModel())
             ->select('conges.*, types_conge.libelle AS type_label')
             ->join('types_conge', 'types_conge.id = conges.type_conge_id', 'left')
             ->where('conges.employee_id', $employeeId)
             ->where("strftime('%Y', conges.date_debut)", (string) $currentYear)
             ->orderBy('conges.created_at', 'DESC')
-            ->findAll(5);
+            ->findAll();
+
+        $requests = array_slice($allRequests, 0, 5);
+
+        $leaveTypeCounts = [];
+        $calendarEvents = [];
+        $statusPalette = [
+            'approuve' => '#3c7a53',
+            'en_attente' => '#d39f33',
+            'refuse' => '#b13b31',
+            'annulee' => '#7a8078',
+        ];
+
+        foreach ($allRequests as $request) {
+            $typeLabel = (string) ($request['type_label'] ?? 'Autre');
+            $leaveTypeCounts[$typeLabel] = ($leaveTypeCounts[$typeLabel] ?? 0) + 1;
+
+            $status = (string) ($request['statut'] ?? 'en_attente');
+            $calendarEvents[] = [
+                'title' => $typeLabel,
+                'start' => (string) ($request['date_debut'] ?? ''),
+                // FullCalendar expects an exclusive end date for all-day events.
+                'end' => date('Y-m-d', strtotime((string) ($request['date_fin'] ?? 'now') . ' +1 day')),
+                'allDay' => true,
+                'backgroundColor' => $statusPalette[$status] ?? '#3c7a53',
+                'borderColor' => $statusPalette[$status] ?? '#3c7a53',
+            ];
+        }
+
+        ksort($leaveTypeCounts);
 
         return view('employee/dashboard', [
             'pageTitle' => 'Tableau de bord employé',
@@ -42,6 +71,12 @@ class EmployeeController extends BaseController
             'employee' => $employee,
             'balances' => $balances,
             'requests' => $requests,
+            'requestCountYear' => count($allRequests),
+            'leaveTypeChart' => [
+                'labels' => array_keys($leaveTypeCounts),
+                'data' => array_values($leaveTypeCounts),
+            ],
+            'calendarEvents' => $calendarEvents,
             'currentYear' => $currentYear,
         ]);
     }
